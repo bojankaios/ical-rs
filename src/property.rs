@@ -47,6 +47,7 @@ extern crate serde;
 
 // Internal mods
 use crate::line::{Line, LineReader};
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum PropertyError {
@@ -123,10 +124,10 @@ impl<B: BufRead> PropertyParser<B> {
         let end_name_index;
 
         let mut param_index = to_parse
-            .find(::PARAM_DELIMITER)
+            .find(crate::PARAM_DELIMITER)
             .unwrap_or(usize::max_value());
         let mut value_index = to_parse
-            .find(::VALUE_DELIMITER)
+            .find(crate::VALUE_DELIMITER)
             .unwrap_or(usize::max_value());
 
         if param_index < value_index && param_index != 0 {
@@ -147,10 +148,10 @@ impl<B: BufRead> PropertyParser<B> {
 
         // Parse parameters.
         value_index = to_parse
-            .find(::VALUE_DELIMITER)
+            .find(crate::VALUE_DELIMITER)
             .unwrap_or(usize::max_value());
         param_index = to_parse
-            .find(::PARAM_DELIMITER)
+            .find(crate::PARAM_DELIMITER)
             .unwrap_or(usize::max_value());
 
         // If there is a PARAM_DELIMITER and it not after the VALUE_DELIMITER
@@ -158,11 +159,11 @@ impl<B: BufRead> PropertyParser<B> {
         if param_index != usize::max_value() && value_index > param_index {
             let mut param_list = Vec::new();
 
-            while to_parse.starts_with(::PARAM_DELIMITER) {
-                to_parse = to_parse.trim_start_matches(::PARAM_DELIMITER);
+            while to_parse.starts_with(crate::PARAM_DELIMITER) {
+                to_parse = to_parse.trim_start_matches(crate::PARAM_DELIMITER);
 
                 // Split the param key and the rest of the line
-                let mut param_elements = to_parse.splitn(2, ::PARAM_NAME_DELIMITER);
+                let mut param_elements = to_parse.splitn(2, crate::PARAM_NAME_DELIMITER);
 
                 let key = param_elements
                     .next()
@@ -181,7 +182,7 @@ impl<B: BufRead> PropertyParser<B> {
                     param_elements
                         .next()
                         .ok_or_else(|| PropertyError::MissingDelimiter {
-                            delimiter: ::PARAM_NAME_DELIMITER,
+                            delimiter: crate::PARAM_NAME_DELIMITER,
                             line: line.number(),
                         })?;
 
@@ -194,7 +195,7 @@ impl<B: BufRead> PropertyParser<B> {
                     i -= 1;
                     if to_parse.starts_with('"') {
                         // This is a dquoted value. (NAME:Foo="Bar":value)
-                        let mut elements = to_parse.splitn(3, ::PARAM_QUOTE).skip(1);
+                        let mut elements = to_parse.splitn(3, crate::PARAM_QUOTE).skip(1);
                         // unwrap is safe here as we have already check above if there is on '"'.
                         values.push(
                             elements
@@ -216,13 +217,13 @@ impl<B: BufRead> PropertyParser<B> {
 
                         // Try to find the next param separator.
                         let param_delimiter = to_parse
-                            .find(::PARAM_DELIMITER)
+                            .find(crate::PARAM_DELIMITER)
                             .unwrap_or(usize::max_value());
                         let value_delimiter = to_parse
-                            .find(::VALUE_DELIMITER)
+                            .find(crate::VALUE_DELIMITER)
                             .unwrap_or(usize::max_value());
                         let param_value_delimiter = to_parse
-                            .find(::PARAM_VALUE_DELIMITER)
+                            .find(crate::PARAM_VALUE_DELIMITER)
                             .unwrap_or(usize::max_value());
 
                         let end_param_value = {
@@ -238,7 +239,7 @@ impl<B: BufRead> PropertyParser<B> {
                                 Ok(value_delimiter)
                             } else {
                                 Err(PropertyError::MissingContentAfter {
-                                    letter: ::PARAM_NAME_DELIMITER,
+                                    letter: crate::PARAM_NAME_DELIMITER,
                                     line: line.number(),
                                 })
                             }
@@ -249,11 +250,11 @@ impl<B: BufRead> PropertyParser<B> {
                         to_parse = elements.1;
                     }
 
-                    if !to_parse.starts_with(::PARAM_VALUE_DELIMITER) {
+                    if !to_parse.starts_with(crate::PARAM_VALUE_DELIMITER) {
                         break;
                     }
 
-                    to_parse = to_parse.trim_start_matches(::PARAM_VALUE_DELIMITER);
+                    to_parse = to_parse.trim_start_matches(crate::PARAM_VALUE_DELIMITER);
                 }
 
                 param_list.push((key.to_uppercase(), values));
@@ -265,7 +266,7 @@ impl<B: BufRead> PropertyParser<B> {
         }
 
         // Parse value
-        to_parse = to_parse.trim_start_matches(::VALUE_DELIMITER);
+        to_parse = to_parse.trim_start_matches(crate::VALUE_DELIMITER);
         if to_parse.is_empty() {
             property.value = None;
         } else {

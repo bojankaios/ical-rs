@@ -10,6 +10,7 @@ name = "ical"
 readme = "./README.md"
 repository = "https://github.com/Peltoche/ical-rs"
 version = "0.11.0"
+edition = "2021"
 
 [badges]
 
@@ -18,7 +19,7 @@ branch = "master"
 repository = "https://travis-ci.org/Peltoche/ical-rs"
 
 [dependencies]
-thiserror = "1.0.50"
+thiserror = "2.0"
 serde = { version = "1.0.193", features = ["derive"], optional = true }
 
 [features]

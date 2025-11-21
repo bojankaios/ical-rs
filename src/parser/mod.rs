@@ -12,7 +12,7 @@ pub mod vcard;
 // Sys mods
 use std::cell::RefCell;
 use std::io::BufRead;
-
+use thiserror::Error;
 // Internal mods
 use crate::property::{Property, PropertyError, PropertyParser};
 

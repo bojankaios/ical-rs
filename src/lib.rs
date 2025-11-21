@@ -31,7 +31,6 @@
 //! project only the needed ones.
 //!
 
-#[macro_use]
 extern crate thiserror;
 
 const PARAM_VALUE_DELIMITER: char = ',';
